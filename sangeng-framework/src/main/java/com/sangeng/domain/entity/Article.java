@@ -22,7 +22,8 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("sg_article")
-@Accessors(chain = true)
+//如果没有 @Accessors(chain = true) 注解，那么 setter 方法只会返回 void，因此你无法链式调用它们
+@Accessors(chain = true)//让set方法返回值类型为当前对象本身
 public class Article  {
     @TableId
     private Long id;
@@ -35,7 +36,7 @@ public class Article  {
     //所属分类id
     private Long categoryId;
 
-    @TableField(exist = false)
+    @TableField(exist = false)//表示这个字段在数据表中是不存在的
     private String categoryName;
     //缩略图
     private String thumbnail;
