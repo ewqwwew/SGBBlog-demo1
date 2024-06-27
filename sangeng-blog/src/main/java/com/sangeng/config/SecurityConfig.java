@@ -36,7 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 对于登录接口 允许匿名访问
                 .antMatchers("/login").anonymous()
                 .antMatchers("/logout").authenticated()//不携带token的权限会提示错误信息
-                .antMatchers("/link/getAllLink").authenticated()
+     //           .antMatchers("/link/getAllLink").authenticated()
+                .antMatchers("/user/userInfo").authenticated()
                 // 除上面外的所有请求全部不需要认证即可访问
                 .anyRequest().permitAll();
 
