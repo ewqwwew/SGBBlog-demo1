@@ -38,6 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/logout").authenticated()//不携带token的权限会提示错误信息
      //           .antMatchers("/link/getAllLink").authenticated()
                 .antMatchers("/user/userInfo").authenticated()
+                .antMatchers("/upload").authenticated()
                 // 除上面外的所有请求全部不需要认证即可访问
                 .anyRequest().permitAll();
 

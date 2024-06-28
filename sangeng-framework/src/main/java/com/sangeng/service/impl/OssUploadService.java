@@ -1,4 +1,4 @@
-package com.sangeng;
+package com.sangeng.service.impl;
 
 import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
@@ -8,45 +8,52 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
-import org.junit.jupiter.api.Test;
+import com.sangeng.domain.ResponseResult;
+import com.sangeng.enums.AppHttpCodeEnum;
+import com.sangeng.exception.SystemException;
+import com.sangeng.service.UploadService;
+import com.sangeng.utils.PathUtils;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 
 /**
- * ClassName: OSSTest
- * Package: com.sangeng
+ * ClassName: OssUploadService
+ * Package: com.sangeng.service.impl
  * Description:
  *
  * @Author java开发师 徐文俊
- * @Create 2024/6/28 2:08
+ * @Create 2024/6/28 19:48
  */
-@SpringBootTest(classes = SanGengBlogApplication.class)
+@Service
+@Data
 @ConfigurationProperties(prefix = "oss")
-public class OSSTest {
+public class OssUploadService implements UploadService {
+    @Override
+    public ResponseResult uploadImg(MultipartFile img) {
+        //TODO:判断文件类型或者文件大小
+        //获取原始文件名
+        String originalFilename = img.getOriginalFilename();
+        //对原始文件名进行判断
+        if(!originalFilename.endsWith(".png")&&!originalFilename.endsWith(".jpg")){
+            throw new SystemException(AppHttpCodeEnum.FILE_TYPE_ERROR);
+        }
+
+        //如果判断通过上传文件到OSS
+        String filePath = PathUtils.generateFilePath(originalFilename);
+        String url=uploadOss(img,filePath);// 假设文件为2099/2/3/dadsd.png
+
+        return ResponseResult.okResult(url);
+    }
 
     private String accessKey;
     private String secretKey;
     private String bucket;
 
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
-    }
-
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-    }
-
-    public void setBucket(String bucket) {
-        this.bucket = bucket;
-    }
-
-    @Test
-    public void testOss(){
+    private String uploadOss(MultipartFile imgFile, String filePath){
         //构造一个带指定 Region 对象的配置类
         Configuration cfg = new Configuration(Region.autoRegion());
         cfg.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;// 指定分片上传版本
@@ -59,12 +66,12 @@ public class OSSTest {
         String bucket = "sg-blog11111";*/
 
 //默认不指定key的情况下，以文件内容的hash值作为文件名
-        String key = "2022/sg.jpg";
+        String key = filePath;
 
         try {
           /*  byte[] uploadBytes = "hello qiniu cloud".getBytes("utf-8");
             ByteArrayInputStream byteInputStream=new ByteArrayInputStream(uploadBytes);*/
-            InputStream inputStream=new FileInputStream("D:\\桌面\\蓝底1寸照片.jpg");
+            InputStream inputStream=imgFile.getInputStream();
 
             Auth auth = Auth.create(accessKey, secretKey);
             String upToken = auth.uploadToken(bucket);
@@ -75,6 +82,7 @@ public class OSSTest {
                 DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
                 System.out.println(putRet.key);
                 System.out.println(putRet.hash);
+                return "http://sfr32be4h.hd-bkt.clouddn.com/"+key;
             } catch (QiniuException ex) {
                 ex.printStackTrace();
                 if (ex.response != null) {
@@ -90,6 +98,6 @@ public class OSSTest {
         } catch (Exception ex) {
             //ignore
         }
-
+        return "www";
     }
 }

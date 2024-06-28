@@ -25,3 +25,9 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
       id-type: auto #自增长
+
+oss:
+  accessKey: 5Ij6uRW0Mk_ZTQf71QGOOcPGyees9vnOo2HBezVV
+  secretkey: 4Wvd3Bc_-UYYW8PR23Gh4vnkqkZM6v7TLmXGrJIg
+  bucket: sg-blog11111
+
